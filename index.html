@@ -564,12 +564,38 @@
           };
 
           const mapRegions = [
-            { id: 'world-overview', name: 'World Overview', category: 'Issolas', image: 'world_maps/world_map.png' },
-            { id: 'sirens-song', name: "Siren's Song", category: 'Issolas', image: 'sirens_song_maps/sirens_song_map.png' },
-            { id: 'miligos', name: 'Miligos', category: 'Issolas', image: 'miligos_maps/miligos.png' }
+            { id: 'world-overview', name: 'World Overview', category: 'Issolas', image: 'world_maps/world_map.png', dmImage: 'world_maps/world_map_dm.png', roles: ['dm', 'adventurer'] },
+            { id: 'sirens-song', name: "Siren's Song", category: 'Issolas', image: 'sirens_song_maps/sirens_song_map.png', roles: ['dm', 'adventurer'] },
+            { id: 'miligos', name: 'Miligos', category: 'Issolas', image: 'miligos_maps/miligos.png', roles: ['dm'] }
           ];
 
+          // Get the appropriate map image based on role
+          const getMapImage = (mapData) => {
+            if (mapData.dmImage && userRole === 'dm') {
+              return mapData.dmImage;
+            }
+            return mapData.image;
+          };
+
+          // Filter maps by role
+          const visibleMapRegions = mapRegions.filter(region => region.roles.includes(userRole));
+          
           const activeMapData = mapRegions.find(map => map.id === currentMap);
+          
+          // Check if user has access to current map, redirect if not
+          React.useEffect(() => {
+            if (activeMapData && !activeMapData.roles.includes(userRole)) {
+              setCurrentMap('sirens-song');
+            }
+          }, [userRole, currentMap]);
+
+          // Check if user can access field guide for a specific location
+          // Each location/dungeon can have fieldGuideRoles: ['dm', 'adventurer'] or just ['dm']
+          // If not specified, defaults to ['dm'] (DM only)
+          const canAccessFieldGuide = (location) => {
+            const allowedRoles = location?.fieldGuideRoles || ['dm'];
+            return allowedRoles.includes(userRole);
+          };
 
           const codexData = {
             lore: [
@@ -610,6 +636,8 @@
                 name: "Siren's Song",
                 x: 13,
                 y: 20,
+                roles: ['dm', 'adventurer'],
+                fieldGuideRoles: ['dm'],
                 description: "Siren's Song is a neutral territory island. It is home to two cities: Falkana and Artil, as well as Mount Beala - a geothermally active mountain with a permanent Winter at its summit.",
                 knownNPCs: [
                   { name: "Old Man Theodormus" },
@@ -648,6 +676,8 @@
                 name: "Falkana",
                 x: 86,
                 y: 33,
+                roles: ['dm', 'adventurer'],
+                fieldGuideRoles: ['dm'],
                 description: "A small fishing town formed along the coastline of Umestris Bay - an inlet of the Northern Sea. Falkana is the northernmost point of civilization on Siren's Song.",
                 cityMap: 'sirens_song_maps/falkana.jpeg',
                 cityMapNight: 'sirens_song_maps/falkana_night.png', 
@@ -672,6 +702,8 @@
                 name: "Mount Beala",
                 x: 20,
                 y: 41,
+                roles: ['dm', 'adventurer'],
+                fieldGuideRoles: ['dm'],
                 description: "An enormous igneous extrusion of rock with strange weather at the summit. Mount Beala is geothermally active but exhibits no geological evidence of eruption.",
                 geoMap: "sirens_song_maps/mount_beala.png",
                 knownNPCs: [],
@@ -685,6 +717,8 @@
                 name: "Artil",
                 x: 27,
                 y: 86,
+                roles: ['dm', 'adventurer'],
+                fieldGuideRoles: ['dm'],
                 description: "A large port town with multiple districts centered around fishing trades. Artil is the southernmost point of civilization on Siren's Song and bears the only port on the island, located at the mouth of the Sirenic River delta.",
                 cityMap: 'sirens_song_maps/artil.jpg', 
                 cityMapNight: 'sirens_song_maps/artil_night.jpg',
@@ -733,7 +767,6 @@
             ]
           };
 
-          const locations = locationsByMap[currentMap] || [];
           const isWorldOverview = currentMap === 'world-overview';
 
           const dungeonsByMap = {
@@ -743,6 +776,8 @@
                 name: "The Bunker",
                 x: 55,
                 y: 35,
+                roles: ['dm', 'adventurer'],
+                fieldGuideRoles: ['dm'],
                 description: "A large, spherical structure buried in the Falkan forest, composed impossibly of organic tissue. Within the organism lay a misted corona of white phosphorescense outlining thick, fiberous vines. The vines lace together to form a latticework script: a kind of dark, incomprehensible sermon with its branching fragments sharing an affinity with that purpose. The script, written in abyssal, was not decipherable through the skill of your party.",
                 geoMap: 'sirens_song_maps/dungeons/bunker.png',
                 knownNPCs: [],
@@ -755,6 +790,8 @@
                 name: "Volcanic Cave",
                 x: 27,
                 y: 38,
+                roles: ['dm', 'adventurer'],
+                fieldGuideRoles: ['dm'],
                 description: "Presenting as a dark opening carved into the base of a volanic outcrop, its entrance is jagged and foreboding, framed by blackened rocks that glisten with moisture. The cave seems alive in its own way. The rocks around it bear scars of ancient eruptions - lava flow frozen mid-motion, veins of obsidian gleaming like shards of glass. From below comes a faint vibration, subtle but undeniable, as if the earth itself is breathing just below the surface. The cave is treacherous, inhospitable, and largely uncharted.",
                 geoMap: 'sirens_song_maps/dungeons/volcanic_cave.png',
                 knownNPCs: [],
@@ -767,7 +804,12 @@
             ]
           };
 
-          const dungeons = dungeonsByMap[currentMap] || [];
+          // Filter locations and dungeons by role
+          const allLocations = locationsByMap[currentMap] || [];
+          const locations = allLocations.filter(loc => !loc.roles || loc.roles.includes(userRole));
+          
+          const allDungeons = dungeonsByMap[currentMap] || [];
+          const dungeons = allDungeons.filter(dng => !dng.roles || dng.roles.includes(userRole));
 
           return (
             <div className="w-full min-h-screen bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100">
@@ -1019,7 +1061,7 @@
                 {activeTab === 'cartographer' && (
                   <>
                     <div className="sidebar-category">Issolas</div>
-                    {mapRegions.filter(region => region.category === 'Issolas').map(region => (
+                    {visibleMapRegions.filter(region => region.category === 'Issolas').map(region => (
                       <div key={region.id} className={`sidebar-item ${currentMap === region.id ? 'active' : ''}`}
                         onClick={() => { setCurrentMap(region.id); setSelectedLocation(null); }}>
                         {region.name}
@@ -1040,7 +1082,7 @@
                 {activeTab === 'cartographer' && (
                   <div className="w-full h-[calc(100vh-2rem)] flex justify-center items-center">
                     <div className="map-container rounded-lg overflow-hidden inline-block max-w-full max-h-[calc(100vh-2rem)]">
-                      <img src={activeMapData.image} alt={`${activeMapData.name} Map`}
+                      <img src={getMapImage(activeMapData)} alt={`${activeMapData.name} Map`}
                         className="block w-auto h-auto max-w-full max-h-[calc(100vh-2rem)] object-contain" style={{ display: 'block' }} />
                       <div className="absolute inset-0 pointer-events-none"></div>
                       {locations.map((location) => (
@@ -1300,7 +1342,7 @@
                   <div className="flex gap-4 w-full modal-enter" style={{ maxWidth: '1400px', maxHeight: 'calc(100vh - 2rem)' }} onClick={(e) => e.stopPropagation()}>
                     {/* Left Panel - Field Guide or City Map */}
                     <div className="parchment-bg rounded-lg p-4 ornate-border overflow-hidden" style={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
-                      {isWorldOverview ? (
+                      {isWorldOverview && canAccessFieldGuide(selectedLocation) ? (
                         <>
                           <h3 className="text-2xl font-bold text-amber-900 mb-3 text-center" style={{ fontFamily: 'Cinzel, serif' }}>Field Guide</h3>
                           <div className="field-guide-tabs">
@@ -1358,6 +1400,14 @@
                             ) : (
                               <div className="text-center text-amber-700 italic mt-8" style={{ fontFamily: 'Crimson Text, serif' }}>No field guide data available for this region.</div>
                             )}
+                          </div>
+                        </>
+                      ) : isWorldOverview && !canAccessFieldGuide(selectedLocation) ? (
+                        <>
+                          <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center text-amber-700" style={{ fontFamily: 'Crimson Text, serif' }}>
+                              <p className="text-lg italic">Region information is displayed on the right.</p>
+                            </div>
                           </div>
                         </>
                       ) : (
