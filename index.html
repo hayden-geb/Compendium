@@ -237,9 +237,11 @@
           const [mapTimeOfDay, setMapTimeOfDay] = useState('day');
           const [selectedLore, setSelectedLore] = useState(null);
           const [noteSearchQuery, setNoteSearchQuery] = useState('');
+          const [expandedNote, setExpandedNote] = useState(null);
           const editorRef = React.useRef(null);
           const editorContainerRef = React.useRef(null);
           const easyMDERef = React.useRef(null);
+          const autoSaveTimeoutRef = React.useRef(null);
 
           // Firebase sync for notes and folders
           useEffect(() => {
@@ -258,6 +260,29 @@
             return () => { notesUnsub(); foldersUnsub(); };
           }, [user]);
 
+          // Auto-save function
+          const autoSaveNote = async (title, content, folderId) => {
+            if (!user) return;
+            try {
+              if (editingNoteId) {
+                await db.collection('users').doc(user.uid).collection('notes').doc(editingNoteId).update({
+                  title, content, folderId,
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+              }
+            } catch (e) { console.error('Auto-save error:', e); }
+          };
+
+          // Debounced auto-save on editor changes
+          const scheduleAutoSave = (title, content, folderId) => {
+            if (autoSaveTimeoutRef.current) {
+              clearTimeout(autoSaveTimeoutRef.current);
+            }
+            autoSaveTimeoutRef.current = setTimeout(() => {
+              autoSaveNote(title, content, folderId);
+            }, 1000); // Save after 1 second of no changes
+          };
+
           useEffect(() => {
             if (isCreatingNote && editorContainerRef.current && !easyMDERef.current) {
               // Small delay to ensure DOM is ready
@@ -269,15 +294,24 @@
                     spellChecker: false,
                     autofocus: true,
                     placeholder: 'Write your notes in Markdown...',
-                    status: false,
+                    status: ['lines', 'words'],
                     toolbar: [
                       'bold', 'italic', 'strikethrough', 'heading', '|',
                       'quote', 'unordered-list', 'ordered-list', 'checklist', '|',
                       'link', 'image', 'table', 'horizontal-rule', '|',
-                      'preview', 'side-by-side', 'fullscreen', '|',
+                      'preview', '|',
                       'guide'
                     ],
                     minHeight: '300px',
+                  });
+                  
+                  // Add change listener for auto-save
+                  easyMDERef.current.codemirror.on('change', () => {
+                    const content = easyMDERef.current.value();
+                    setCurrentNote(prev => ({ ...prev, content }));
+                    if (editingNoteId) {
+                      scheduleAutoSave(currentNote.title, content, currentNote.folderId);
+                    }
                   });
                 }
               }, 50);
@@ -285,6 +319,9 @@
             
             // Cleanup when closing editor
             if (!isCreatingNote && easyMDERef.current) {
+              if (autoSaveTimeoutRef.current) {
+                clearTimeout(autoSaveTimeoutRef.current);
+              }
               easyMDERef.current.toTextArea();
               easyMDERef.current = null;
             }
@@ -1096,13 +1133,56 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .note-content input[type="checkbox"] { margin-right: 0.5rem; }
                 .note-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #8b7355; }
                 .note-search {
-                  width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; font-family: 'Crimson Text', serif; font-size: 1rem;
-                  background: rgba(245, 236, 215, 0.9); border: 2px solid #8b7355; border-radius: 0.5rem;
-                  color: #2d1810; margin-bottom: 1.5rem;
+                  flex: 1; padding: 0.75rem 1rem; font-family: 'Crimson Text', serif; font-size: 1rem;
+                  background: transparent; border: 2px solid #8b7355; border-radius: 0.5rem;
+                  color: #2d1810; max-width: 400px;
                 }
                 .note-search:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
-                .note-search-container { position: relative; }
-                .note-search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #8b7355; pointer-events: none; }
+                .note-search-container { display: flex; gap: 1rem; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+                .note-toolbar-button {
+                  padding: 0.75rem 1.5rem; background: rgba(212, 175, 55, 0.3); border: 2px solid #d4af37;
+                  border-radius: 0.5rem; cursor: pointer; font-family: 'Cinzel', serif; font-size: 1rem;
+                  color: #2d1810; transition: all 0.3s; font-weight: 600; white-space: nowrap;
+                }
+                .note-toolbar-button:hover { background: rgba(212, 175, 55, 0.5); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+                .note-card { cursor: pointer; }
+                .expanded-note-overlay {
+                  position: fixed; top: 0; left: 280px; right: 0; bottom: 0; 
+                  background: rgba(0, 0, 0, 0.7); z-index: 200; 
+                  display: flex; align-items: center; justify-content: center; padding: 2rem;
+                  animation: fadeIn 0.2s ease;
+                }
+                .expanded-note-container {
+                  background: transparent; max-width: 900px; width: 100%;
+                  max-height: calc(100vh - 4rem); overflow-y: auto; position: relative;
+                  padding: 2rem; animation: narrativeEnter 0.3s ease;
+                }
+                .expanded-note-header {
+                  display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;
+                }
+                .expanded-note-title { font-family: 'Cinzel', serif; font-size: 2.5rem; font-weight: 700; color: #f5e6d7; margin: 0; }
+                .expanded-note-close {
+                  width: 40px; height: 40px; background: rgba(139, 115, 85, 0.3); border: 2px solid #8b7355;
+                  border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+                  transition: all 0.3s; color: #f5e6d7; flex-shrink: 0; margin-left: 1rem;
+                }
+                .expanded-note-close:hover { background: rgba(212, 175, 55, 0.4); border-color: #d4af37; transform: scale(1.1); }
+                .expanded-note-content { 
+                  font-family: 'Crimson Text', serif; font-size: 1.2rem; color: #f5e6d7; line-height: 1.8;
+                }
+                .expanded-note-content h1, .expanded-note-content h2, .expanded-note-content h3 { font-family: 'Cinzel', serif; color: #d4af37; }
+                .expanded-note-content h1 { font-size: 2rem; }
+                .expanded-note-content h2 { font-size: 1.5rem; }
+                .expanded-note-content h3 { font-size: 1.25rem; }
+                .expanded-note-content code { background: rgba(139, 115, 85, 0.3); padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
+                .expanded-note-content pre { background: rgba(0, 0, 0, 0.5); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+                .expanded-note-content pre code { background: none; }
+                .expanded-note-content blockquote { border-left: 3px solid #d4af37; padding-left: 1rem; color: #c4b896; font-style: italic; }
+                .expanded-note-content a { color: #d4af37; }
+                .expanded-note-content table { border-collapse: collapse; }
+                .expanded-note-content th, .expanded-note-content td { border: 1px solid #8b7355; padding: 0.5rem; }
+                .expanded-note-content th { background: rgba(212, 175, 55, 0.2); }
+                .expanded-note-actions { display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; }
                 .markdown-editor-container { margin-bottom: 1rem; }
                 .markdown-editor-container .EasyMDEContainer { border: 2px solid #8b7355; border-radius: 0.5rem; overflow: hidden; }
                 .markdown-editor-container .EasyMDEContainer .CodeMirror { 
@@ -1115,6 +1195,7 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .markdown-editor-container .editor-toolbar button.active { background: rgba(212, 175, 55, 0.4) !important; }
                 .markdown-editor-container .editor-preview { background: rgba(245, 236, 215, 0.95); font-family: 'Crimson Text', serif; }
                 .markdown-editor-container .CodeMirror-cursor { border-left-color: #2d1810; }
+                .auto-save-indicator { font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #6b8b5a; font-style: italic; }
                 .action-button {
                   padding: 0.5rem 1rem; border: 1px solid #8b7355; border-radius: 0.25rem;
                   cursor: pointer; transition: all 0.2s; font-family: 'Crimson Text', serif; font-size: 0.9rem;
@@ -1494,42 +1575,46 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                         </div>
                       ) : (<>
                       {!isCreatingNote && (
-                        <>
-                          <div className="text-center mb-6">
-                            <button className="new-note-button" onClick={createNewNote}>+ New Note</button>
-                          </div>
-                          <div className="note-search-container">
-                            <span className="note-search-icon">🔍</span>
-                            <input 
-                              type="text" 
-                              className="note-search" 
-                              placeholder="Search notes..." 
-                              value={noteSearchQuery}
-                              onChange={(e) => setNoteSearchQuery(e.target.value)}
-                            />
-                          </div>
-                        </>
+                        <div className="note-search-container">
+                          <input 
+                            type="text" 
+                            className="note-search" 
+                            placeholder="Search" 
+                            value={noteSearchQuery}
+                            onChange={(e) => setNoteSearchQuery(e.target.value)}
+                          />
+                          <button className="note-toolbar-button" onClick={createNewNote}>+ New Note</button>
+                        </div>
                       )}
                       {isCreatingNote && (
                         <div className="mb-8" key={editingNoteId || 'new'}>
                           <input type="text" className="note-title-input" placeholder="Note Title..." value={currentNote.title}
-                            onChange={(e) => setCurrentNote({...currentNote, title: e.target.value})} />
+                            onChange={(e) => {
+                              const newTitle = e.target.value;
+                              setCurrentNote({...currentNote, title: newTitle});
+                              if (editingNoteId) {
+                                scheduleAutoSave(newTitle, currentNote.content, currentNote.folderId);
+                              }
+                            }} />
                           <div className="markdown-editor-container">
                             <textarea ref={editorContainerRef}></textarea>
                           </div>
-                          <div className="flex gap-4 mt-4">
-                            <button className="action-button primary" onClick={saveNote} style={{ flex: 1, padding: '0.75rem' }}>{editingNoteId ? 'Update Note' : 'Save Note'}</button>
+                          <div className="flex gap-4 mt-4 items-center">
+                            <button className="action-button primary" onClick={saveNote} style={{ flex: 1, padding: '0.75rem' }}>{editingNoteId ? 'Done' : 'Save Note'}</button>
                             <button className="action-button" onClick={() => { setIsCreatingNote(false); setCurrentNote({ title: '', content: '', folderId: null }); setEditingNoteId(null); }}
                               style={{ flex: 1, padding: '0.75rem', background: 'rgba(139, 115, 85, 0.2)' }}>Cancel</button>
+                            {editingNoteId && <span className="auto-save-indicator">Auto-saving...</span>}
                           </div>
                         </div>
                       )}
                       <div className="note-grid">
                         {!isCreatingNote && filteredNotes.map((note) => (
-                          <div key={note.id} className="note-card" draggable onDragStart={() => setDraggedNote(note.id)} onDragEnd={() => setDraggedNote(null)}>
+                          <div key={note.id} className="note-card" 
+                            onClick={() => setExpandedNote(note)}
+                            draggable onDragStart={(e) => { e.stopPropagation(); setDraggedNote(note.id); }} onDragEnd={() => setDraggedNote(null)}>
                             <h3 className="text-2xl font-bold text-amber-900 mb-3" style={{ fontFamily: 'Cinzel, serif' }}>{note.title || 'Untitled Note'}</h3>
                             <div className="note-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}></div>
-                            <div className="note-actions">
+                            <div className="note-actions" onClick={(e) => e.stopPropagation()}>
                               <button className="action-button primary" onClick={() => editNote(note)}>Edit</button>
                               <button className="action-button danger" onClick={() => deleteNote(note.id)}>Delete</button>
                             </div>
@@ -1771,6 +1856,25 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                     <div className="lore-narrative-content">
                       {selectedLore.narrative}
                       <div className="lore-narrative-end">◆ ◆ ◆</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Expanded Note Modal */}
+              {expandedNote && (
+                <div className="expanded-note-overlay" onClick={() => setExpandedNote(null)}>
+                  <div className="expanded-note-container" onClick={(e) => e.stopPropagation()}>
+                    <div className="expanded-note-header">
+                      <h1 className="expanded-note-title">{expandedNote.title || 'Untitled Note'}</h1>
+                      <button className="expanded-note-close" onClick={() => setExpandedNote(null)}>
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="expanded-note-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(expandedNote.content) }}></div>
+                    <div className="expanded-note-actions">
+                      <button className="action-button primary" onClick={() => { editNote(expandedNote); setExpandedNote(null); }}>Edit</button>
+                      <button className="action-button danger" onClick={() => { deleteNote(expandedNote.id); setExpandedNote(null); }}>Delete</button>
                     </div>
                   </div>
                 </div>
