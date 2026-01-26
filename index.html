@@ -238,10 +238,28 @@
           const [selectedLore, setSelectedLore] = useState(null);
           const [noteSearchQuery, setNoteSearchQuery] = useState('');
           const [expandedNote, setExpandedNote] = useState(null);
+          const [autoSaveStatus, setAutoSaveStatus] = useState(null); // null, 'saving', 'saved'
           const editorRef = React.useRef(null);
           const editorContainerRef = React.useRef(null);
           const easyMDERef = React.useRef(null);
           const autoSaveTimeoutRef = React.useRef(null);
+
+          // Close all modals and editors when switching tabs
+          const closeAllModals = () => {
+            setSelectedLocation(null);
+            setSelectedLore(null);
+            setExpandedNote(null);
+            if (isCreatingNote && easyMDERef.current) {
+              // Save before closing if editing
+              if (editingNoteId) {
+                const content = easyMDERef.current.value();
+                autoSaveNote(currentNote.title, content, currentNote.folderId);
+              }
+              setIsCreatingNote(false);
+              setCurrentNote({ title: '', content: '', folderId: null });
+              setEditingNoteId(null);
+            }
+          };
 
           // Firebase sync for notes and folders
           useEffect(() => {
@@ -262,19 +280,25 @@
 
           // Auto-save function
           const autoSaveNote = async (title, content, folderId) => {
-            if (!user) return;
+            if (!user || !editingNoteId) return;
+            setAutoSaveStatus('saving');
             try {
-              if (editingNoteId) {
-                await db.collection('users').doc(user.uid).collection('notes').doc(editingNoteId).update({
-                  title, content, folderId,
-                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-              }
-            } catch (e) { console.error('Auto-save error:', e); }
+              await db.collection('users').doc(user.uid).collection('notes').doc(editingNoteId).update({
+                title, content, folderId,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              setAutoSaveStatus('saved');
+              // Clear "saved" status after 2 seconds
+              setTimeout(() => setAutoSaveStatus(null), 2000);
+            } catch (e) { 
+              console.error('Auto-save error:', e); 
+              setAutoSaveStatus(null);
+            }
           };
 
           // Debounced auto-save on editor changes
           const scheduleAutoSave = (title, content, folderId) => {
+            setAutoSaveStatus('saving');
             if (autoSaveTimeoutRef.current) {
               clearTimeout(autoSaveTimeoutRef.current);
             }
@@ -1153,9 +1177,10 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                   animation: fadeIn 0.2s ease;
                 }
                 .expanded-note-container {
-                  background: transparent; max-width: 900px; width: 100%;
+                  background: rgba(30, 20, 15, 0.95); max-width: 900px; width: 100%;
                   max-height: calc(100vh - 4rem); overflow-y: auto; position: relative;
                   padding: 2rem; animation: narrativeEnter 0.3s ease;
+                  border: 2px solid #8b7355; border-radius: 0.5rem;
                 }
                 .expanded-note-header {
                   display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;
@@ -1195,7 +1220,8 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .markdown-editor-container .editor-toolbar button.active { background: rgba(212, 175, 55, 0.4) !important; }
                 .markdown-editor-container .editor-preview { background: rgba(245, 236, 215, 0.95); font-family: 'Crimson Text', serif; }
                 .markdown-editor-container .CodeMirror-cursor { border-left-color: #2d1810; }
-                .auto-save-indicator { font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #6b8b5a; font-style: italic; }
+                .auto-save-indicator { font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #8b7355; font-style: italic; }
+                .auto-save-indicator.saved { color: #6b8b5a; }
                 .action-button {
                   padding: 0.5rem 1rem; border: 1px solid #8b7355; border-radius: 0.25rem;
                   cursor: pointer; transition: all 0.2s; font-family: 'Crimson Text', serif; font-size: 0.9rem;
@@ -1364,9 +1390,9 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                   </div>
                   <button onClick={onLogout} className="mt-2 w-full text-xs text-amber-400 hover:text-amber-200 transition-colors py-1" style={{ fontFamily: 'Crimson Text, serif' }}>Sign Out</button>
                 </div>
-                <div className={`tab-button ${activeTab === 'cartographer' ? 'active' : ''}`} onClick={() => setActiveTab('cartographer')}>Cartographer</div>
-                <div className={`tab-button ${activeTab === 'codex' ? 'active' : ''}`} onClick={() => setActiveTab('codex')}>Codex</div>
-                <div className={`tab-button ${activeTab === 'catalog' ? 'active' : ''}`} onClick={() => setActiveTab('catalog')}>Catalog</div>
+                <div className={`tab-button ${activeTab === 'cartographer' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('cartographer'); }}>Cartographer</div>
+                <div className={`tab-button ${activeTab === 'codex' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('codex'); }}>Codex</div>
+                <div className={`tab-button ${activeTab === 'catalog' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('catalog'); }}>Catalog</div>
 
                 {activeTab === 'cartographer' && (
                   <>
@@ -1382,8 +1408,8 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 {activeTab === 'codex' && (
                   <>
                     <div className="sidebar-category">Sections</div>
-                    <div className={`sidebar-item ${activeCodexSection === 'lore' ? 'active' : ''}`} onClick={() => setActiveCodexSection('lore')}>Lore</div>
-                    <div className={`sidebar-item ${activeCodexSection === 'pantheon' ? 'active' : ''}`} onClick={() => setActiveCodexSection('pantheon')}>Pantheon</div>
+                    <div className={`sidebar-item ${activeCodexSection === 'lore' ? 'active' : ''}`} onClick={() => { setSelectedLore(null); setActiveCodexSection('lore'); }}>Lore</div>
+                    <div className={`sidebar-item ${activeCodexSection === 'pantheon' ? 'active' : ''}`} onClick={() => { setSelectedLore(null); setActiveCodexSection('pantheon'); }}>Pantheon</div>
                   </>
                 )}
               </aside>
@@ -1601,9 +1627,10 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                           </div>
                           <div className="flex gap-4 mt-4 items-center">
                             <button className="action-button primary" onClick={saveNote} style={{ flex: 1, padding: '0.75rem' }}>{editingNoteId ? 'Done' : 'Save Note'}</button>
-                            <button className="action-button" onClick={() => { setIsCreatingNote(false); setCurrentNote({ title: '', content: '', folderId: null }); setEditingNoteId(null); }}
+                            <button className="action-button" onClick={() => { setIsCreatingNote(false); setCurrentNote({ title: '', content: '', folderId: null }); setEditingNoteId(null); setAutoSaveStatus(null); }}
                               style={{ flex: 1, padding: '0.75rem', background: 'rgba(139, 115, 85, 0.2)' }}>Cancel</button>
-                            {editingNoteId && <span className="auto-save-indicator">Auto-saving...</span>}
+                            {editingNoteId && autoSaveStatus === 'saving' && <span className="auto-save-indicator">Saving...</span>}
+                            {editingNoteId && autoSaveStatus === 'saved' && <span className="auto-save-indicator saved">Saved</span>}
                           </div>
                         </div>
                       )}
