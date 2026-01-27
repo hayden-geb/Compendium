@@ -619,6 +619,12 @@
             if (window.confirm('Are you sure you want to delete this note?')) {
               try {
                 await db.collection('users').doc(user.uid).collection('notes').doc(id).delete();
+                // Also update local state immediately as fallback
+                setNoteCards(prev => prev.filter(note => note.id !== id));
+                // Close expanded note if it was the deleted one
+                if (expandedNote && expandedNote.id === id) {
+                  setExpandedNote(null);
+                }
               } catch (e) { console.error('Delete note error:', e); }
             }
           };
