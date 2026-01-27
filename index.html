@@ -1458,16 +1458,59 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 }
                 .markdown-editor-container .editor-preview h1, 
                 .markdown-editor-container .editor-preview h2, 
-                .markdown-editor-container .editor-preview h3 { font-family: 'Cinzel', serif; color: #8b5a00; }
-                .markdown-editor-container .editor-preview blockquote { border-left: 3px solid #d4af37; padding-left: 1rem; color: #5a4a3a; font-style: italic; }
-                .markdown-editor-container .editor-preview code { background: rgba(139, 115, 85, 0.15); padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
-                .markdown-editor-container .editor-preview pre { background: rgba(45, 24, 16, 0.9); color: #f5e6d7; padding: 1rem; border-radius: 0.5rem; }
-                .markdown-editor-container .editor-preview table { width: 100%; border-collapse: collapse; }
-                .markdown-editor-container .editor-preview th, .markdown-editor-container .editor-preview td { border: 1px solid #8b7355; padding: 0.5rem; }
-                .markdown-editor-container .editor-preview th { background: rgba(212, 175, 55, 0.2); }
+                .markdown-editor-container .editor-preview h3,
+                .markdown-editor-container .editor-preview h4,
+                .markdown-editor-container .editor-preview h5,
+                .markdown-editor-container .editor-preview h6 { font-family: 'Cinzel', serif; color: #8b5a00; margin: 1rem 0 0.5rem; }
+                .markdown-editor-container .editor-preview h1 { font-size: 2rem; }
+                .markdown-editor-container .editor-preview h2 { font-size: 1.5rem; }
+                .markdown-editor-container .editor-preview h3 { font-size: 1.25rem; }
+                .markdown-editor-container .editor-preview p { margin: 0.5rem 0; line-height: 1.6; }
+                .markdown-editor-container .editor-preview ul, 
+                .markdown-editor-container .editor-preview ol { 
+                  margin: 0.5rem 0; padding-left: 1.5rem; 
+                }
+                .markdown-editor-container .editor-preview ul { list-style-type: disc; }
+                .markdown-editor-container .editor-preview ol { list-style-type: decimal; }
+                .markdown-editor-container .editor-preview ul ul { list-style-type: circle; }
+                .markdown-editor-container .editor-preview ul ul ul { list-style-type: square; }
+                .markdown-editor-container .editor-preview li { margin: 0.25rem 0; line-height: 1.5; }
+                .markdown-editor-container .editor-preview li > ul,
+                .markdown-editor-container .editor-preview li > ol { margin: 0.25rem 0; }
+                .markdown-editor-container .editor-preview blockquote { 
+                  border-left: 3px solid #d4af37; padding-left: 1rem; margin: 0.5rem 0;
+                  color: #5a4a3a; font-style: italic; background: rgba(212, 175, 55, 0.1); padding: 0.5rem 1rem;
+                }
+                .markdown-editor-container .editor-preview code { 
+                  background: rgba(139, 115, 85, 0.15); padding: 0.125rem 0.375rem; border-radius: 0.25rem;
+                  font-family: 'Courier New', monospace; font-size: 0.9em;
+                }
+                .markdown-editor-container .editor-preview pre { 
+                  background: rgba(45, 24, 16, 0.9); color: #f5e6d7; padding: 1rem; border-radius: 0.5rem;
+                  overflow-x: auto; margin: 0.5rem 0;
+                }
+                .markdown-editor-container .editor-preview pre code { 
+                  background: none; padding: 0; color: inherit; 
+                }
+                .markdown-editor-container .editor-preview table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+                .markdown-editor-container .editor-preview th, 
+                .markdown-editor-container .editor-preview td { border: 1px solid #8b7355; padding: 0.5rem; }
+                .markdown-editor-container .editor-preview th { background: rgba(212, 175, 55, 0.2); font-weight: 600; }
+                .markdown-editor-container .editor-preview hr { border: none; border-top: 2px solid #8b7355; margin: 1rem 0; }
+                .markdown-editor-container .editor-preview a { color: #8b5a00; text-decoration: underline; }
+                .markdown-editor-container .editor-preview a:hover { color: #d4af37; }
+                .markdown-editor-container .editor-preview img { max-width: 100%; height: auto; border-radius: 0.25rem; }
+                .markdown-editor-container .editor-preview strong { font-weight: 700; }
+                .markdown-editor-container .editor-preview em { font-style: italic; }
+                .markdown-editor-container .editor-preview s, 
+                .markdown-editor-container .editor-preview del { text-decoration: line-through; }
+                .markdown-editor-container .editor-preview input[type="checkbox"] { margin-right: 0.5rem; }
                 .markdown-editor-container .CodeMirror-cursor { border-left-color: #2d1810; }
                 .markdown-editor-container .EasyMDEContainer .editor-preview-side { 
                   border-left: 2px solid #8b7355; background: rgba(245, 236, 215, 0.95);
+                }
+                .markdown-editor-container .EasyMDEContainer .editor-preview-active-side {
+                  background: rgba(245, 236, 215, 0.95);
                 }
                 .markdown-editor-container .editor-statusbar { background: rgba(139, 115, 85, 0.1); border-top: 1px solid #8b7355; }
                 .markdown-editor-container .editor-statusbar span { color: #5a4a3a; font-family: 'Crimson Text', serif; }
@@ -1558,7 +1601,7 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .field-guide-tab:last-child { border-radius: 0 0.5rem 0.5rem 0; }
                 .field-guide-tab:hover { background: rgba(212, 175, 55, 0.3); }
                 .field-guide-tab.active { background: rgba(212, 175, 55, 0.5); border-color: #d4af37; color: #8b5a00; }
-                .field-guide-scroll-container { padding-right: 1rem; margin-right: -0.5rem; overflow-y: auto; flex: 1; }
+                .field-guide-scroll-container { padding-right: 0; overflow-y: auto; flex: 1; }
                 .field-guide-search-container { 
                   display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;
                 }
@@ -1576,7 +1619,7 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .field-guide-filter:focus { outline: none; border-color: #d4af37; }
                 .field-guide-entry {
                   background: rgba(245, 236, 215, 0.6); border-radius: 0.5rem;
-                  padding: 1rem; margin-bottom: 0.75rem; transition: all 0.3s; margin-right: 0.5rem;
+                  padding: 1rem; margin-bottom: 0.75rem; transition: all 0.3s;
                 }
                 .field-guide-entry.rarity-common { border: 2px solid #4a6741; }
                 .field-guide-entry.rarity-uncommon { border: 2px solid #2563eb; }
@@ -1673,14 +1716,25 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .note-card.drag-over { border-color: #d4af37; border-style: dashed; background: rgba(212, 175, 55, 0.2); }
                 .note-move-buttons { display: none; gap: 0.25rem; margin-left: auto; }
                 .note-move-btn {
-                  padding: 0.25rem 0.5rem; background: rgba(139, 115, 85, 0.2); border: 1px solid #8b7355;
-                  border-radius: 0.25rem; cursor: pointer; font-size: 0.7rem; color: #2d1810;
+                  padding: 0.4rem 0.6rem; background: rgba(139, 115, 85, 0.2); border: 1px solid #8b7355;
+                  border-radius: 0.25rem; cursor: pointer; font-size: 0.85rem; color: #2d1810;
+                  min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center;
                 }
                 .note-move-btn:hover { background: rgba(212, 175, 55, 0.3); }
-                @media (max-width: 768px) {
+                .note-move-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+                .note-move-btn:active { background: rgba(212, 175, 55, 0.5); transform: scale(0.95); }
+                /* Show move buttons on touch devices and tablets */
+                @media (max-width: 1024px) {
                   .note-move-buttons { display: flex; }
                 }
                 @media (pointer: coarse) {
+                  .note-move-buttons { display: flex; }
+                }
+                @media (hover: none) {
+                  .note-move-buttons { display: flex; }
+                }
+                /* iPad specific */
+                @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
                   .note-move-buttons { display: flex; }
                 }
                 .expanded-note-overlay {
@@ -1710,18 +1764,28 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .expanded-note-content { 
                   font-family: 'Crimson Text', serif; font-size: 1.2rem; color: #2d1810; line-height: 1.8;
                 }
-                .expanded-note-content h1, .expanded-note-content h2, .expanded-note-content h3 { font-family: 'Cinzel', serif; color: #8b5a00; }
+                .expanded-note-content h1, .expanded-note-content h2, .expanded-note-content h3 { font-family: 'Cinzel', serif; color: #8b5a00; margin: 1rem 0 0.5rem; }
                 .expanded-note-content h1 { font-size: 2rem; }
                 .expanded-note-content h2 { font-size: 1.5rem; }
                 .expanded-note-content h3 { font-size: 1.25rem; }
-                .expanded-note-content code { background: rgba(139, 115, 85, 0.2); padding: 0.125rem 0.375rem; border-radius: 0.25rem; }
-                .expanded-note-content pre { background: rgba(45, 24, 16, 0.9); color: #f5e6d7; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+                .expanded-note-content p { margin: 0.5rem 0; }
+                .expanded-note-content ul, .expanded-note-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+                .expanded-note-content ul { list-style-type: disc; }
+                .expanded-note-content ol { list-style-type: decimal; }
+                .expanded-note-content ul ul { list-style-type: circle; }
+                .expanded-note-content ul ul ul { list-style-type: square; }
+                .expanded-note-content li { margin: 0.25rem 0; }
+                .expanded-note-content code { background: rgba(139, 115, 85, 0.2); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.9em; }
+                .expanded-note-content pre { background: rgba(45, 24, 16, 0.9); color: #f5e6d7; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; }
                 .expanded-note-content pre code { background: none; color: inherit; }
                 .expanded-note-content blockquote { border-left: 3px solid #d4af37; padding-left: 1rem; color: #5a4a3a; font-style: italic; background: rgba(212, 175, 55, 0.1); padding: 0.5rem 1rem; margin: 0.75rem 0; }
-                .expanded-note-content a { color: #8b5a00; }
-                .expanded-note-content table { border-collapse: collapse; width: 100%; }
+                .expanded-note-content a { color: #8b5a00; text-decoration: underline; }
+                .expanded-note-content a:hover { color: #d4af37; }
+                .expanded-note-content table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
                 .expanded-note-content th, .expanded-note-content td { border: 1px solid #8b7355; padding: 0.5rem; }
-                .expanded-note-content th { background: rgba(212, 175, 55, 0.2); }
+                .expanded-note-content th { background: rgba(212, 175, 55, 0.2); font-weight: 600; }
+                .expanded-note-content hr { border: none; border-top: 2px solid #8b7355; margin: 1rem 0; }
+                .expanded-note-content img { max-width: 100%; height: auto; border-radius: 0.25rem; }
                 .expanded-note-actions { display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; padding-top: 1rem; border-top: 2px solid #8b7355; }
                 .note-content { font-family: 'Crimson Text', serif; font-size: 1rem; color: #2d1810; line-height: 1.6; flex: 1; overflow: hidden; }
                 .note-content h1, .note-content h2, .note-content h3 { font-family: 'Cinzel', serif; color: #8b5a00; margin: 0.5rem 0; }
@@ -1730,13 +1794,20 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .note-content h3 { font-size: 1rem; }
                 .note-content p { margin-bottom: 0.5rem; }
                 .note-content ul, .note-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
-                .note-content code { background: rgba(139, 115, 85, 0.15); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; }
+                .note-content ul { list-style-type: disc; }
+                .note-content ol { list-style-type: decimal; }
+                .note-content li { margin: 0.25rem 0; }
+                .note-content code { background: rgba(139, 115, 85, 0.15); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.85em; font-family: 'Courier New', monospace; }
                 .note-content pre { background: rgba(45, 24, 16, 0.9); color: #f5e6d7; padding: 0.75rem; border-radius: 0.25rem; overflow-x: auto; margin: 0.5rem 0; }
+                .note-content pre code { background: none; color: inherit; }
                 .note-content blockquote { border-left: 2px solid #d4af37; padding-left: 0.75rem; margin: 0.5rem 0; color: #5a4a3a; font-style: italic; }
                 .note-content table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.9rem; }
                 .note-content th, .note-content td { border: 1px solid #8b7355; padding: 0.25rem 0.5rem; }
                 .note-content th { background: rgba(212, 175, 55, 0.2); }
-                .field-guide-scroll-container { padding-right: 1rem; overflow-y: auto; flex: 1; }
+                .note-content a { color: #8b5a00; }
+                .note-content hr { border: none; border-top: 1px solid #8b7355; margin: 0.5rem 0; }
+                .note-content img { max-width: 100%; height: auto; }
+                .field-guide-scroll-container { padding-right: 0; overflow-y: auto; flex: 1; }
                 .npc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
                 .npc-grid-item { padding: 0.5rem 0.75rem; background: rgba(245, 236, 215, 0.6); border: 1px solid #8b7355; border-radius: 0.25rem; text-align: center; font-family: 'Crimson Text', serif; font-size: 0.95rem; color: #2d1810; }
                 @media (max-width: 768px) {
