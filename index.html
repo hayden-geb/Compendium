@@ -377,6 +377,12 @@
             }
           }, [editingNoteId]);
 
+          // Render markdown to HTML
+          const renderMarkdown = (content) => {
+            if (!content) return '';
+            try { return marked.parse(content); } catch (e) { return content; }
+          };
+
           const createNewNote = () => {
             setCurrentNote({ title: '', content: '', folderId: selectedFolder });
             setEditingNoteId(null);
