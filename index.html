@@ -244,6 +244,7 @@
           const [fieldGuideSearch, setFieldGuideSearch] = useState('');
           const [fieldGuideRarityFilter, setFieldGuideRarityFilter] = useState('all');
           const [fieldGuideHabitatFilter, setFieldGuideHabitatFilter] = useState('all');
+          const [movingNoteId, setMovingNoteId] = useState(null);
           const editorRef = React.useRef(null);
           const editorContainerRef = React.useRef(null);
           const easyMDERef = React.useRef(null);
@@ -1365,15 +1366,6 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .note-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #8b7355; flex-wrap: wrap; }
                 .note-card.dragging { opacity: 0.5; transform: scale(0.98); }
                 .note-card.drag-over { border-color: #d4af37; border-style: dashed; background: rgba(212, 175, 55, 0.1); }
-                .note-move-buttons { display: none; gap: 0.25rem; }
-                @media (max-width: 768px) {
-                  .note-move-buttons { display: flex; }
-                }
-                .note-move-btn {
-                  padding: 0.25rem 0.5rem; background: rgba(139, 115, 85, 0.2); border: 1px solid #8b7355;
-                  border-radius: 0.25rem; cursor: pointer; font-size: 0.75rem; color: #2d1810;
-                }
-                .note-move-btn:hover { background: rgba(212, 175, 55, 0.3); }
                 .note-search {
                   flex: 1; padding: 0.75rem 1rem; font-family: 'Crimson Text', serif; font-size: 1rem;
                   background: transparent; border: 2px solid #8b7355; border-radius: 0.5rem;
@@ -1601,7 +1593,7 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .field-guide-tab:last-child { border-radius: 0 0.5rem 0.5rem 0; }
                 .field-guide-tab:hover { background: rgba(212, 175, 55, 0.3); }
                 .field-guide-tab.active { background: rgba(212, 175, 55, 0.5); border-color: #d4af37; color: #8b5a00; }
-                .field-guide-scroll-container { padding-right: 0; overflow-y: auto; flex: 1; }
+                .field-guide-scroll-container { padding-right: 0.75rem; overflow-y: auto; flex: 1; }
                 .field-guide-search-container { 
                   display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;
                 }
@@ -1714,29 +1706,6 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 }
                 .note-toolbar-button:hover { background: rgba(212, 175, 55, 0.5); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
                 .note-card.drag-over { border-color: #d4af37; border-style: dashed; background: rgba(212, 175, 55, 0.2); }
-                .note-move-buttons { display: none; gap: 0.25rem; margin-left: auto; }
-                .note-move-btn {
-                  padding: 0.4rem 0.6rem; background: rgba(139, 115, 85, 0.2); border: 1px solid #8b7355;
-                  border-radius: 0.25rem; cursor: pointer; font-size: 0.85rem; color: #2d1810;
-                  min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center;
-                }
-                .note-move-btn:hover { background: rgba(212, 175, 55, 0.3); }
-                .note-move-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-                .note-move-btn:active { background: rgba(212, 175, 55, 0.5); transform: scale(0.95); }
-                /* Show move buttons on touch devices and tablets */
-                @media (max-width: 1024px) {
-                  .note-move-buttons { display: flex; }
-                }
-                @media (pointer: coarse) {
-                  .note-move-buttons { display: flex; }
-                }
-                @media (hover: none) {
-                  .note-move-buttons { display: flex; }
-                }
-                /* iPad specific */
-                @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-                  .note-move-buttons { display: flex; }
-                }
                 .expanded-note-overlay {
                   position: fixed; top: 0; left: 280px; right: 0; bottom: 0; 
                   background: rgba(0, 0, 0, 0.85); z-index: 200; 
@@ -1807,9 +1776,28 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .note-content a { color: #8b5a00; }
                 .note-content hr { border: none; border-top: 1px solid #8b7355; margin: 0.5rem 0; }
                 .note-content img { max-width: 100%; height: auto; }
-                .field-guide-scroll-container { padding-right: 0; overflow-y: auto; flex: 1; }
                 .npc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
                 .npc-grid-item { padding: 0.5rem 0.75rem; background: rgba(245, 236, 215, 0.6); border: 1px solid #8b7355; border-radius: 0.25rem; text-align: center; font-family: 'Crimson Text', serif; font-size: 0.95rem; color: #2d1810; }
+                .note-folder-select {
+                  position: absolute; top: 100%; left: 0; right: 0; background: rgba(245, 236, 215, 0.98);
+                  border: 2px solid #8b7355; border-radius: 0.5rem; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                  margin-top: 0.25rem; max-height: 200px; overflow-y: auto;
+                }
+                .note-folder-option {
+                  padding: 0.5rem 0.75rem; cursor: pointer; font-family: 'Crimson Text', serif;
+                  display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s;
+                }
+                .note-folder-option:hover { background: rgba(212, 175, 55, 0.3); }
+                .note-folder-option .folder-color-dot { width: 10px; height: 10px; border-radius: 50%; }
+                .move-note-btn {
+                  padding: 0.4rem 0.6rem; background: rgba(37, 99, 235, 0.2); border: 1px solid #2563eb;
+                  border-radius: 0.25rem; cursor: pointer; font-size: 0.8rem; color: #2563eb;
+                  font-family: 'Crimson Text', serif; display: none;
+                }
+                .move-note-btn:hover { background: rgba(37, 99, 235, 0.3); }
+                @media (max-width: 1024px) { .move-note-btn { display: inline-block; } }
+                @media (pointer: coarse) { .move-note-btn { display: inline-block; } }
+                @media (hover: none) { .move-note-btn { display: inline-block; } }
                 @media (max-width: 768px) {
                   .sidebar { transform: translateX(-100%); }
                   .sidebar.mobile-open { transform: translateX(0); }
@@ -2109,13 +2097,24 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                               dangerouslySetInnerHTML={{ __html: highlightSearchMatch(note.title || 'Untitled Note') }}
                             ></h3>
                             <div className="note-content" dangerouslySetInnerHTML={{ __html: highlightSearchMatch(renderMarkdown(note.content), true) }}></div>
-                            <div className="note-actions" onClick={(e) => e.stopPropagation()}>
-                              <button className="action-button primary" onClick={() => editNote(note)}>Edit</button>
-                              <button className="action-button danger" onClick={() => deleteNote(note.id)}>Delete</button>
-                              <div className="note-move-buttons">
-                                <button className="note-move-btn" onClick={() => moveNoteUp(note.id)} disabled={index === 0}>↑</button>
-                                <button className="note-move-btn" onClick={() => moveNoteDown(note.id)} disabled={index === sortedNotes.length - 1}>↓</button>
-                              </div>
+                            <div className="note-actions" onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
+                              <button className="action-button primary" onClick={(e) => { e.stopPropagation(); editNote(note); }}>Edit</button>
+                              <button className="action-button danger" onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }}>Delete</button>
+                              <button className="move-note-btn" onClick={(e) => { e.stopPropagation(); setMovingNoteId(movingNoteId === note.id ? null : note.id); }}>Move</button>
+                              {movingNoteId === note.id && (
+                                <div className="note-folder-select" onClick={(e) => e.stopPropagation()}>
+                                  <div className="note-folder-option" onClick={() => { moveNoteToFolder(note.id, null); setMovingNoteId(null); }}>
+                                    <div className="folder-color-dot" style={{ background: '#8b7355' }}></div>
+                                    <span>No Folder</span>
+                                  </div>
+                                  {folders.map(folder => (
+                                    <div key={folder.id} className="note-folder-option" onClick={() => { moveNoteToFolder(note.id, folder.id); setMovingNoteId(null); }}>
+                                      <div className="folder-color-dot" style={{ background: folder.color }}></div>
+                                      <span>{folder.name}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
