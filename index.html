@@ -568,9 +568,11 @@
           };
 
           const deleteFolder = async (id) => {
-            if (confirm('Delete this folder? Notes inside will not be deleted.')) {
+            if (window.confirm('Delete this folder? Notes inside will not be deleted.')) {
               try {
                 await db.collection('users').doc(user.uid).collection('folders').doc(id).delete();
+                // Update local state immediately
+                setFolders(prev => prev.filter(folder => folder.id !== id));
                 if (selectedFolder === id) setSelectedFolder(null);
               } catch (e) { console.error('Delete folder error:', e); }
             }
@@ -616,16 +618,27 @@
           };
 
           const deleteNote = async (id) => {
+            console.log('deleteNote called with id:', id);
             if (window.confirm('Are you sure you want to delete this note?')) {
+              console.log('User confirmed deletion');
               try {
+                console.log('Attempting to delete from Firestore...');
                 await db.collection('users').doc(user.uid).collection('notes').doc(id).delete();
+                console.log('Firestore delete successful');
                 // Also update local state immediately as fallback
-                setNoteCards(prev => prev.filter(note => note.id !== id));
+                setNoteCards(prev => {
+                  console.log('Updating local state, filtering out:', id);
+                  return prev.filter(note => note.id !== id);
+                });
                 // Close expanded note if it was the deleted one
                 if (expandedNote && expandedNote.id === id) {
                   setExpandedNote(null);
                 }
-              } catch (e) { console.error('Delete note error:', e); }
+              } catch (e) { 
+                console.error('Delete note error:', e); 
+              }
+            } else {
+              console.log('User cancelled deletion');
             }
           };
 
@@ -2011,7 +2024,7 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                           ) : (
                             <span className="folder-name">{folder.name}</span>
                           )}
-                          <button className="folder-delete" onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}>×</button>
+                          <button type="button" className="folder-delete" onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}>×</button>
                         </div>
                       ))}
                       {!isCreatingFolder && <div className="folder-create" onClick={() => setIsCreatingFolder(true)}>+ New Folder</div>}
@@ -2107,17 +2120,17 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                             ></h3>
                             <div className="note-content" dangerouslySetInnerHTML={{ __html: highlightSearchMatch(renderMarkdown(note.content), true) }}></div>
                             <div className="note-actions" onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
-                              <button className="action-button primary" onClick={() => editNote(note)}>Edit</button>
-                              <button className="action-button danger" onClick={() => deleteNote(note.id)}>Delete</button>
-                              <button className="move-note-btn" onClick={(e) => { e.stopPropagation(); setMovingNoteId(movingNoteId === note.id ? null : note.id); }}>Move</button>
+                              <button type="button" className="action-button primary" onClick={(e) => { e.stopPropagation(); editNote(note); }}>Edit</button>
+                              <button type="button" className="action-button danger" onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }}>Delete</button>
+                              <button type="button" className="move-note-btn" onClick={(e) => { e.stopPropagation(); setMovingNoteId(movingNoteId === note.id ? null : note.id); }}>Move</button>
                               {movingNoteId === note.id && (
                                 <div className="note-folder-select" onClick={(e) => e.stopPropagation()}>
-                                  <div className="note-folder-option" onClick={() => { moveNoteToFolder(note.id, null); setMovingNoteId(null); }}>
+                                  <div className="note-folder-option" onClick={(e) => { e.stopPropagation(); moveNoteToFolder(note.id, null); setMovingNoteId(null); }}>
                                     <div className="folder-color-dot" style={{ background: '#8b7355' }}></div>
                                     <span>No Folder</span>
                                   </div>
                                   {folders.map(folder => (
-                                    <div key={folder.id} className="note-folder-option" onClick={() => { moveNoteToFolder(note.id, folder.id); setMovingNoteId(null); }}>
+                                    <div key={folder.id} className="note-folder-option" onClick={(e) => { e.stopPropagation(); moveNoteToFolder(note.id, folder.id); setMovingNoteId(null); }}>
                                       <div className="folder-color-dot" style={{ background: folder.color }}></div>
                                       <span>{folder.name}</span>
                                     </div>
@@ -2437,8 +2450,8 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                     </div>
                     <div className="expanded-note-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(expandedNote.content) }}></div>
                     <div className="expanded-note-actions">
-                      <button className="action-button primary" onClick={() => { editNote(expandedNote); setExpandedNote(null); }}>Edit</button>
-                      <button className="action-button danger" onClick={() => { deleteNote(expandedNote.id); setExpandedNote(null); }}>Delete</button>
+                      <button type="button" className="action-button primary" onClick={(e) => { e.stopPropagation(); editNote(expandedNote); setExpandedNote(null); }}>Edit</button>
+                      <button type="button" className="action-button danger" onClick={(e) => { e.stopPropagation(); deleteNote(expandedNote.id); }}>Delete</button>
                     </div>
                   </div>
                 </div>
