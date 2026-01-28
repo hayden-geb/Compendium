@@ -1779,41 +1779,73 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                     z-index: 99;
                   }
                 }
+                .customs-container {
+                  height: calc(100vh - 2rem); display: flex; flex-direction: column;
+                  padding: 1rem; box-sizing: border-box;
+                }
+                .customs-grid {
+                  display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
+                  gap: 1rem; flex: 1; min-height: 0;
+                }
                 .customs-rule {
                   background: rgba(245, 236, 215, 0.9); border: 2px solid #8b7355; border-radius: 0.5rem;
-                  padding: 1.5rem; position: relative;
+                  padding: 1rem; position: relative; transition: all 0.3s ease;
+                  display: flex; flex-direction: column; overflow: hidden;
+                }
+                .customs-rule:hover {
+                  transform: translateY(-4px); box-shadow: 0 8px 24px rgba(139, 115, 85, 0.3);
+                  border-color: #d4af37;
+                }
+                .customs-rule-large {
+                  grid-column: span 2;
                 }
                 .customs-rule-header {
-                  display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;
+                  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-shrink: 0;
                 }
                 .customs-rule-number {
-                  width: 36px; height: 36px; background: linear-gradient(135deg, #d4af37 0%, #8b7355 100%);
+                  width: 28px; height: 28px; background: linear-gradient(135deg, #d4af37 0%, #8b7355 100%);
                   border-radius: 50%; display: flex; align-items: center; justify-content: center;
-                  font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.1rem; color: #2d1810;
+                  font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.9rem; color: #2d1810;
                   flex-shrink: 0;
                 }
                 .customs-rule-header h3 {
-                  font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 600; color: #8b5a00; margin: 0;
+                  font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 600; color: #8b5a00; margin: 0;
                 }
                 .customs-rule > p {
-                  font-family: 'Crimson Text', serif; font-size: 1.1rem; color: #2d1810; line-height: 1.6; margin: 0;
+                  font-family: 'Crimson Text', serif; font-size: 0.95rem; color: #2d1810; line-height: 1.5; margin: 0;
+                }
+                .customs-subrules-row {
+                  display: flex; gap: 0.5rem; flex: 1; min-height: 0;
                 }
                 .customs-subrule {
                   background: rgba(139, 115, 85, 0.1); border-left: 3px solid #d4af37;
-                  padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 0.25rem 0.25rem 0;
+                  padding: 0.5rem 0.75rem; border-radius: 0 0.25rem 0.25rem 0; flex: 1;
                 }
                 .customs-subrule h4 {
-                  font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 600; color: #8b5a00; margin: 0 0 0.5rem 0;
+                  font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 600; color: #8b5a00; margin: 0 0 0.25rem 0;
                 }
                 .customs-subrule ul {
-                  margin: 0; padding-left: 1.25rem; font-family: 'Crimson Text', serif; font-size: 1rem; color: #2d1810;
+                  margin: 0; padding-left: 1rem; font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #2d1810;
+                  list-style-type: disc;
                 }
-                .customs-subrule li { margin: 0.25rem 0; line-height: 1.5; }
-                .customs-subrule li strong { color: #8b5a00; }
+                .customs-subrule li { margin: 0.15rem 0; line-height: 1.4; }
                 .customs-note {
-                  font-family: 'Crimson Text', serif; font-size: 0.95rem; color: #6b5a4a;
-                  font-style: italic; margin-top: 1rem; padding-top: 0.75rem;
-                  border-top: 1px solid rgba(139, 115, 85, 0.3);
+                  font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #6b5a4a;
+                  font-style: italic; margin-top: 0.5rem; flex-shrink: 0;
+                }
+                @media (max-width: 1024px) {
+                  .customs-grid {
+                    grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr);
+                  }
+                  .customs-rule-large { grid-column: span 2; }
+                }
+                @media (max-width: 768px) {
+                  .customs-grid {
+                    grid-template-columns: 1fr; grid-template-rows: auto;
+                    overflow-y: auto;
+                  }
+                  .customs-rule-large { grid-column: span 1; }
+                  .customs-subrules-row { flex-direction: column; }
                 }
                 .lore-card {
                   background: rgba(245, 236, 215, 0.8); border: 2px solid #8b7355; border-radius: 0.5rem;
@@ -2047,11 +2079,11 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
 
               <div className="main-content p-4">
                 {activeTab === 'customs' && (
-                  <div className="max-w-4xl mx-auto py-8">
-                    <h1 className="text-4xl font-bold text-amber-900 mb-2 text-center" style={{ fontFamily: 'Cinzel, serif' }}>Campaign Customs</h1>
-                    <p className="text-center text-amber-700 mb-8" style={{ fontFamily: 'Crimson Text, serif', fontSize: '1.1rem' }}>House rules and homebrew mechanics for this campaign</p>
+                  <div className="customs-container">
+                    <h1 className="text-3xl font-bold text-amber-900 mb-1 text-center" style={{ fontFamily: 'Cinzel, serif' }}>Customs</h1>
+                    <p className="text-center text-amber-700 mb-4" style={{ fontFamily: 'Crimson Text, serif', fontSize: '1rem' }}>House rules and homebrew mechanics for the Land of the Fallen campaign</p>
                     
-                    <div className="space-y-6">
+                    <div className="customs-grid">
                       {/* Rule 1 */}
                       <div className="customs-rule">
                         <div className="customs-rule-header">
@@ -2089,38 +2121,40 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                       </div>
 
                       {/* Rule 5 */}
-                      <div className="customs-rule">
+                      <div className="customs-rule customs-rule-large">
                         <div className="customs-rule-header">
                           <span className="customs-rule-number">5</span>
                           <h3>Desperate Measures</h3>
                         </div>
-                        <p className="mb-4">When a player is beaten (quarter health or less), they can expend death saving throws to gain abilities:</p>
+                        <p className="mb-2">When beaten (¼ health or less), expend death saves for abilities:</p>
                         
-                        <div className="customs-subrule">
-                          <h4>1 Death Saving Throw</h4>
-                          <ul>
-                            <li>Immediately take Dash and Disengage as extra actions, <strong>OR</strong></li>
-                            <li>Give yourself a +5 bonus to any d20 test you just failed, <strong>OR</strong></li>
-                            <li>Re-roll a failed d20 attack roll</li>
-                          </ul>
+                        <div className="customs-subrules-row">
+                          <div className="customs-subrule">
+                            <h4>1 Death Save</h4>
+                            <ul>
+                              <li>Dash + Disengage as extra actions</li>
+                              <li>+5 to a failed d20 test</li>
+                              <li>Re-roll a failed attack</li>
+                            </ul>
+                          </div>
+
+                          <div className="customs-subrule">
+                            <h4>2 Death Saves</h4>
+                            <ul>
+                              <li>On hit, all damage dice deal max damage</li>
+                            </ul>
+                          </div>
+
+                          <div className="customs-subrule">
+                            <h4>3 Death Saves</h4>
+                            <ul>
+                              <li>Extra Attack or Magic action</li>
+                              <li>Regain a spell slot (Lvl 1-5)</li>
+                            </ul>
+                          </div>
                         </div>
 
-                        <div className="customs-subrule">
-                          <h4>2 Death Saving Throws</h4>
-                          <ul>
-                            <li>If an attack roll hits, each damage die deals maximum damage</li>
-                          </ul>
-                        </div>
-
-                        <div className="customs-subrule">
-                          <h4>3 Death Saving Throws</h4>
-                          <ul>
-                            <li>Immediately take the Attack or Magic action as an extra action, <strong>OR</strong></li>
-                            <li>Immediately regain an expended spell slot of Level 1 through 5</li>
-                          </ul>
-                        </div>
-
-                        <p className="customs-note">Note: Death saving throws reset after a long rest.</p>
+                        <p className="customs-note">Death saves reset after a long rest.</p>
                       </div>
 
                       {/* Rule 6 */}
