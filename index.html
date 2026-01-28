@@ -1779,6 +1779,42 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                     z-index: 99;
                   }
                 }
+                .customs-rule {
+                  background: rgba(245, 236, 215, 0.9); border: 2px solid #8b7355; border-radius: 0.5rem;
+                  padding: 1.5rem; position: relative;
+                }
+                .customs-rule-header {
+                  display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;
+                }
+                .customs-rule-number {
+                  width: 36px; height: 36px; background: linear-gradient(135deg, #d4af37 0%, #8b7355 100%);
+                  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                  font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.1rem; color: #2d1810;
+                  flex-shrink: 0;
+                }
+                .customs-rule-header h3 {
+                  font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 600; color: #8b5a00; margin: 0;
+                }
+                .customs-rule > p {
+                  font-family: 'Crimson Text', serif; font-size: 1.1rem; color: #2d1810; line-height: 1.6; margin: 0;
+                }
+                .customs-subrule {
+                  background: rgba(139, 115, 85, 0.1); border-left: 3px solid #d4af37;
+                  padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 0.25rem 0.25rem 0;
+                }
+                .customs-subrule h4 {
+                  font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 600; color: #8b5a00; margin: 0 0 0.5rem 0;
+                }
+                .customs-subrule ul {
+                  margin: 0; padding-left: 1.25rem; font-family: 'Crimson Text', serif; font-size: 1rem; color: #2d1810;
+                }
+                .customs-subrule li { margin: 0.25rem 0; line-height: 1.5; }
+                .customs-subrule li strong { color: #8b5a00; }
+                .customs-note {
+                  font-family: 'Crimson Text', serif; font-size: 0.95rem; color: #6b5a4a;
+                  font-style: italic; margin-top: 1rem; padding-top: 0.75rem;
+                  border-top: 1px solid rgba(139, 115, 85, 0.3);
+                }
                 .lore-card {
                   background: rgba(245, 236, 215, 0.8); border: 2px solid #8b7355; border-radius: 0.5rem;
                   padding: 1.5rem; cursor: pointer; transition: all 0.3s; position: relative;
@@ -1984,6 +2020,7 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                   </div>
                   <button onClick={onLogout} className="mt-2 w-full text-xs text-amber-400 hover:text-amber-200 transition-colors py-1" style={{ fontFamily: 'Crimson Text, serif' }}>Sign Out</button>
                 </div>
+                <div className={`tab-button ${activeTab === 'customs' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('customs'); }}>Customs</div>
                 <div className={`tab-button ${activeTab === 'cartographer' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('cartographer'); }}>Cartographer</div>
                 <div className={`tab-button ${activeTab === 'codex' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('codex'); }}>Codex</div>
                 <div className={`tab-button ${activeTab === 'catalog' ? 'active' : ''}`} onClick={() => { closeAllModals(); setActiveTab('catalog'); }}>Catalog</div>
@@ -2009,6 +2046,95 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
               </aside>
 
               <div className="main-content p-4">
+                {activeTab === 'customs' && (
+                  <div className="max-w-4xl mx-auto py-8">
+                    <h1 className="text-4xl font-bold text-amber-900 mb-2 text-center" style={{ fontFamily: 'Cinzel, serif' }}>Campaign Customs</h1>
+                    <p className="text-center text-amber-700 mb-8" style={{ fontFamily: 'Crimson Text, serif', fontSize: '1.1rem' }}>House rules and homebrew mechanics for this campaign</p>
+                    
+                    <div className="space-y-6">
+                      {/* Rule 1 */}
+                      <div className="customs-rule">
+                        <div className="customs-rule-header">
+                          <span className="customs-rule-number">1</span>
+                          <h3>In-Character Speech</h3>
+                        </div>
+                        <p>Everything you say will be taken as in character.</p>
+                      </div>
+
+                      {/* Rule 2 */}
+                      <div className="customs-rule">
+                        <div className="customs-rule-header">
+                          <span className="customs-rule-number">2</span>
+                          <h3>Herbalism, Alchemy & Poison</h3>
+                        </div>
+                        <p>Herbalism, Alchemy, and Poison homebrew rules are in effect.</p>
+                      </div>
+
+                      {/* Rule 3 */}
+                      <div className="customs-rule">
+                        <div className="customs-rule-header">
+                          <span className="customs-rule-number">3</span>
+                          <h3>Arcane Static</h3>
+                        </div>
+                        <p>When two spellcasters are within 10 feet (in certain regions), wild magic sparks between them. Both roll a d6—on matching numbers, something random happens.</p>
+                      </div>
+
+                      {/* Rule 4 */}
+                      <div className="customs-rule">
+                        <div className="customs-rule-header">
+                          <span className="customs-rule-number">4</span>
+                          <h3>Desperate Casting</h3>
+                        </div>
+                        <p>When a player has no spell slots left, they can take a level of exhaustion to cast spells proportional to the number of levels of exhaustion taken.</p>
+                      </div>
+
+                      {/* Rule 5 */}
+                      <div className="customs-rule">
+                        <div className="customs-rule-header">
+                          <span className="customs-rule-number">5</span>
+                          <h3>Desperate Measures</h3>
+                        </div>
+                        <p className="mb-4">When a player is beaten (quarter health or less), they can expend death saving throws to gain abilities:</p>
+                        
+                        <div className="customs-subrule">
+                          <h4>1 Death Saving Throw</h4>
+                          <ul>
+                            <li>Immediately take Dash and Disengage as extra actions, <strong>OR</strong></li>
+                            <li>Give yourself a +5 bonus to any d20 test you just failed, <strong>OR</strong></li>
+                            <li>Re-roll a failed d20 attack roll</li>
+                          </ul>
+                        </div>
+
+                        <div className="customs-subrule">
+                          <h4>2 Death Saving Throws</h4>
+                          <ul>
+                            <li>If an attack roll hits, each damage die deals maximum damage</li>
+                          </ul>
+                        </div>
+
+                        <div className="customs-subrule">
+                          <h4>3 Death Saving Throws</h4>
+                          <ul>
+                            <li>Immediately take the Attack or Magic action as an extra action, <strong>OR</strong></li>
+                            <li>Immediately regain an expended spell slot of Level 1 through 5</li>
+                          </ul>
+                        </div>
+
+                        <p className="customs-note">Note: Death saving throws reset after a long rest.</p>
+                      </div>
+
+                      {/* Rule 6 */}
+                      <div className="customs-rule">
+                        <div className="customs-rule-header">
+                          <span className="customs-rule-number">6</span>
+                          <h3>Hidden Death Saves</h3>
+                        </div>
+                        <p>Death saving throws are rolled behind the DM screen.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {activeTab === 'cartographer' && (
                   <div className="w-full h-[calc(100vh-2rem)] flex justify-center items-center">
                     <div className="map-container rounded-lg overflow-hidden inline-block max-w-full max-h-[calc(100vh-2rem)]">
