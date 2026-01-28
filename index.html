@@ -1630,8 +1630,15 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .field-guide-entry.rarity-very-rare:hover { border-color: #f97316; }
                 .field-guide-entry h4 { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 600; color: #8b5a00; margin-bottom: 0.25rem; }
                 .field-guide-header { display: flex; gap: 1rem; align-items: flex-start; }
-                .field-guide-info { flex: 1; display: flex; flex-direction: column; }
-                .field-guide-image { width: 80px; height: 80px; object-fit: cover; border: 2px solid #8b7355; border-radius: 0.5rem; flex-shrink: 0; }
+                .field-guide-info { flex: 0 0 auto; display: flex; flex-direction: column; min-width: 120px; }
+                .field-guide-image { 
+                  flex: 1;
+                  max-width: 250px;
+                  height: auto;
+                  object-fit: cover; 
+                  border: 2px solid #8b7355; 
+                  border-radius: 0.5rem;
+                }
                 .field-guide-separator { height: 1px; background: linear-gradient(to right, transparent, #8b7355, transparent); margin: 0.75rem 0; }
                 .field-guide-description { font-family: 'Crimson Text', serif; font-size: 0.95rem; color: #2d1810; line-height: 1.5; }
                 .field-guide-meta { display: flex; gap: 1rem; font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #6b5a4a; margin-top: 0.25rem; flex-wrap: wrap; }
@@ -1648,6 +1655,18 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .rarity-uncommon { color: #2563eb; }
                 .rarity-rare { color: #9333ea; }
                 .rarity-very-rare { color: #ea580c; }
+                .folder-select-overlay {
+                  display: none;
+                }
+                @media (max-width: 1024px) {
+                  .folder-select-overlay {
+                    display: block;
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 99;
+                  }
+                }
                 .lore-card {
                   background: rgba(245, 236, 215, 0.8); border: 2px solid #8b7355; border-radius: 0.5rem;
                   padding: 1.5rem; cursor: pointer; transition: all 0.3s; position: relative;
@@ -2133,18 +2152,21 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                               <button type="button" className="action-button danger" onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }}>Delete</button>
                               <button type="button" className="move-note-btn" onClick={(e) => { e.stopPropagation(); setMovingNoteId(movingNoteId === note.id ? null : note.id); }}>Move</button>
                               {movingNoteId === note.id && (
-                                <div className="note-folder-select" onClick={(e) => e.stopPropagation()}>
-                                  <div className="note-folder-option" onClick={(e) => { e.stopPropagation(); moveNoteToFolder(note.id, null); setMovingNoteId(null); }}>
-                                    <div className="folder-color-dot" style={{ background: '#8b7355' }}></div>
-                                    <span>No Folder</span>
-                                  </div>
-                                  {folders.map(folder => (
-                                    <div key={folder.id} className="note-folder-option" onClick={(e) => { e.stopPropagation(); moveNoteToFolder(note.id, folder.id); setMovingNoteId(null); }}>
-                                      <div className="folder-color-dot" style={{ background: folder.color }}></div>
-                                      <span>{folder.name}</span>
+                                <>
+                                  <div className="folder-select-overlay" onClick={(e) => { e.stopPropagation(); setMovingNoteId(null); }}></div>
+                                  <div className="note-folder-select" onClick={(e) => e.stopPropagation()}>
+                                    <div className="note-folder-option" onClick={(e) => { e.stopPropagation(); moveNoteToFolder(note.id, null); setMovingNoteId(null); }}>
+                                      <div className="folder-color-dot" style={{ background: '#8b7355' }}></div>
+                                      <span>No Folder</span>
                                     </div>
-                                  ))}
-                                </div>
+                                    {folders.map(folder => (
+                                      <div key={folder.id} className="note-folder-option" onClick={(e) => { e.stopPropagation(); moveNoteToFolder(note.id, folder.id); setMovingNoteId(null); }}>
+                                        <div className="folder-color-dot" style={{ background: folder.color }}></div>
+                                        <span>{folder.name}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </>
                               )}
                             </div>
                           </div>
