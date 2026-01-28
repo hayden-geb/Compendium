@@ -1788,9 +1788,10 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                 .field-guide-entry.rarity-uncommon:hover { border-color: #3b82f6; }
                 .field-guide-entry.rarity-rare:hover { border-color: #a855f7; }
                 .field-guide-entry.rarity-very-rare:hover { border-color: #f97316; }
-                .field-guide-entry h4 { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 600; color: #8b5a00; margin-bottom: 0.25rem; }
+                .field-guide-entry h4 { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 600; color: #8b5a00; margin-bottom: 0.15rem; }
                 .field-guide-header { display: flex; gap: 1rem; align-items: center; }
-                .field-guide-info { flex: 0 0 auto; display: flex; flex-direction: column; min-width: 120px; }
+                .field-guide-info { flex: 0 0 auto; display: flex; flex-direction: column; min-width: 100px; gap: 0.2rem; }
+                .field-guide-habitat { font-family: 'Crimson Text', serif; font-size: 0.85rem; color: #6b5a4a; }
                 .field-guide-image { 
                   flex: 1;
                   height: 70px;
@@ -2756,12 +2757,10 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                                             <div className="field-guide-header">
                                               <div className="field-guide-info">
                                                 <h4 dangerouslySetInnerHTML={{ __html: highlightFieldGuideMatch(entry.name) }}></h4>
-                                                <div className="field-guide-meta">
-                                                  <span className={`rarity-badge ${rarityClass}`}>
-                                                    {rarityInfo.icon} {entry.rarity}
-                                                  </span>
-                                                  <span dangerouslySetInnerHTML={{ __html: highlightFieldGuideMatch(entry.habitat) }}></span>
-                                                </div>
+                                                <span className="field-guide-habitat" dangerouslySetInnerHTML={{ __html: highlightFieldGuideMatch(entry.habitat) }}></span>
+                                                <span className={`rarity-badge ${rarityClass}`}>
+                                                  {rarityInfo.icon} {entry.rarity}
+                                                </span>
                                               </div>
                                               {entry.image && <img src={entry.image} alt={entry.name} className="field-guide-image" />}
                                             </div>
@@ -2791,12 +2790,10 @@ In taverns where hearths burn too low, travelers trade fragments of stories abou
                                             <div className="field-guide-header">
                                               <div className="field-guide-info">
                                                 <h4 dangerouslySetInnerHTML={{ __html: highlightFieldGuideMatch(entry.name) }}></h4>
-                                                <div className="field-guide-meta">
-                                                  <span className={`rarity-badge ${rarityClass}`}>
-                                                    {rarityInfo.icon} {entry.rarity}
-                                                  </span>
-                                                  <span dangerouslySetInnerHTML={{ __html: highlightFieldGuideMatch(entry.habitat) }}></span>
-                                                </div>
+                                                <span className="field-guide-habitat" dangerouslySetInnerHTML={{ __html: highlightFieldGuideMatch(entry.habitat) }}></span>
+                                                <span className={`rarity-badge ${rarityClass}`}>
+                                                  {rarityInfo.icon} {entry.rarity}
+                                                </span>
                                               </div>
                                               {entry.image && <img src={entry.image} alt={entry.name} className="field-guide-image" />}
                                             </div>
